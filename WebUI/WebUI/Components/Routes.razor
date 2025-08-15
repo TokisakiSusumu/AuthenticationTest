@@ -1,0 +1,14 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using WebUI.Components.Layout
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    <RedirectToLogin />
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+    </Router>
+</CascadingAuthenticationState>

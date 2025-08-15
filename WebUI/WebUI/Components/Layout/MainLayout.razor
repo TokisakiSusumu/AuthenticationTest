@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using WebUI.Services
+@inherits LayoutComponentBase
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <AuthorizeView>
+                <Authorized>
+                    <span>Hello, @context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value</span>
+                    <button class="btn btn-link" @onclick="Logout">Logout</button>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="/login">Login</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private async Task Logout()
+    {
+        await AuthService.Logout();
+        Navigation.NavigateTo("/");
+    }
+}
