@@ -1,37 +1,21 @@
-using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
-using WebUI.Client.Components;
+using WebUI.Client.Pages;
 using WebUI.Components;
 
 namespace WebUI;
-
 public class Program
 {
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents()
             .AddInteractiveWebAssemblyComponents();
 
-        // Add Blazored LocalStorage
-        builder.Services.AddBlazoredLocalStorage();
-
-        // Authentication services
-        builder.Services.AddAuthorizationCore();
-        builder.Services.AddCascadingAuthenticationState();
-        builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
-        builder.Services.AddScoped<AuthService>();
-
-        // HTTP client for API calls
-        builder.Services.AddScoped(sp => new HttpClient
-        {
-            BaseAddress = new Uri("https://localhost:7191/")
-        });
-
         var app = builder.Build();
 
+        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseWebAssemblyDebugging();
@@ -39,10 +23,12 @@ public class Program
         else
         {
             app.UseExceptionHandler("/Error");
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
         app.UseHttpsRedirection();
+
         app.UseStaticFiles();
         app.UseAntiforgery();
 
