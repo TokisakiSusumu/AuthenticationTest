@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Json;
-using WebUI.Components;
 
-namespace WebUI.Services;
+namespace WebUI.Client.Components;
 
 public class AuthService
 {
@@ -26,7 +25,7 @@ public class AuthService
                 var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
                 if (result?.Token != null)
                 {
-                    await ((CustomAuthStateProvider)_authStateProvider).Login(result.Token);
+                    await ((JwtAuthenticationStateProvider)_authStateProvider).MarkUserAsAuthenticated(result.Token);
                     return true;
                 }
             }
@@ -38,7 +37,7 @@ public class AuthService
 
     public async Task Logout()
     {
-        await ((CustomAuthStateProvider)_authStateProvider).Logout();
+        await ((JwtAuthenticationStateProvider)_authStateProvider).MarkUserAsLoggedOut();
     }
 
     private class LoginResponse

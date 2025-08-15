@@ -1,10 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using WebApi.Data;
-using WebApi.Auth;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebApi.Auth;
+using WebApi.Data;
 
 namespace WebApi;
 
@@ -26,11 +26,11 @@ public class Program
         .AddDefaultTokenProviders();
 
         // JWT Services
-        builder.Services.AddDataProtection();
-        builder.Services.AddSingleton<IJwtAuthService, JwtAuthService>();
+        builder.Services.AddScoped<IJwtAuthService, JwtAuthService>();
 
-        // Configure JWT with a static key (simpler approach)
-        var key = Encoding.UTF8.GetBytes("YourSuperSecretKeyAtLeast32CharactersLong!!");
+        // Configure JWT
+        var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyAtLeast32CharactersLong!!";
+        var key = Encoding.UTF8.GetBytes(jwtKey);
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -40,9 +40,9 @@ public class Program
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = true,
-                    ValidIssuer = "AuthAPI",
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "AuthAPI",
                     ValidateAudience = true,
-                    ValidAudience = "BlazorApp",
+                    ValidAudience = builder.Configuration["Jwt:Audience"] ?? "BlazorApp",
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
@@ -54,9 +54,10 @@ public class Program
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("BlazorApp", policy =>
-                policy.AllowAnyOrigin()
+                policy.WithOrigins("https://localhost:7291", "http://localhost:5216")
                       .AllowAnyHeader()
-                      .AllowAnyMethod());
+                      .AllowAnyMethod()
+                      .AllowCredentials());
         });
 
         builder.Services.AddEndpointsApiExplorer();
