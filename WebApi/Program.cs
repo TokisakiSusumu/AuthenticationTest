@@ -23,7 +23,7 @@ public class Program
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.Lax;
             options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            options.ExpireTimeSpan = TimeSpan.FromDays(14);
+            options.ExpireTimeSpan = TimeSpan.FromSeconds(10);
             options.SlidingExpiration = true;
         });
 
