@@ -17,16 +17,14 @@ public class Program
         builder.Services.AddIdentityApiEndpoints<User>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
         // Configure authentication cookies
+        // Find this section and modify:
         builder.Services.ConfigureApplicationCookie(options =>
         {
             options.Cookie.Name = ".AspNetCore.Identity.Application";
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.Lax;
             options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            // Use configured expiration instead of 10 seconds!
             options.ExpireTimeSpan = TimeSpan.FromSeconds(10);
-            options.SlidingExpiration = true;
-            // Important: This affects the sliding window
             options.SlidingExpiration = true;
         });
 
