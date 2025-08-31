@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
 
@@ -15,7 +16,6 @@ public class Program
         // Configure Identity with cookie authentication
         builder.Services.AddIdentityApiEndpoints<User>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
-
         // Configure authentication cookies
         builder.Services.ConfigureApplicationCookie(options =>
         {
@@ -23,7 +23,10 @@ public class Program
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.Lax;
             options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            // Use configured expiration instead of 10 seconds!
             options.ExpireTimeSpan = TimeSpan.FromSeconds(10);
+            options.SlidingExpiration = true;
+            // Important: This affects the sliding window
             options.SlidingExpiration = true;
         });
 
@@ -42,6 +45,12 @@ public class Program
         }
 
         app.MapIdentityApi<User>();
+        app.MapPost("/logout", async (HttpContext httpContext, SignInManager<User> signInManager) =>
+        {
+            await signInManager.SignOutAsync();
+            return Results.Ok(new { message = "Logged out successfully" });
+        })
+        .RequireAuthorization();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
