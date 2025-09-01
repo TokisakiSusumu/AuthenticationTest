@@ -43,6 +43,19 @@ public class Program
         }
 
         app.MapIdentityApi<User>();
+        app.Use(async (context, next) =>
+        {
+            await next();
+
+            // If user is authenticated and we're setting cookies, add expiration header
+            if (context.User.Identity?.IsAuthenticated == true &&
+                context.Response.Headers.ContainsKey("Set-Cookie"))
+            {
+                // Add 10 seconds to current time (matching your cookie expiration)
+                var expiresAt = DateTimeOffset.UtcNow.AddSeconds(10).ToUnixTimeSeconds();
+                context.Response.Headers.Add("X-Auth-Expires", expiresAt.ToString());
+            }
+        });
         app.MapPost("/logout", async (HttpContext httpContext, SignInManager<User> signInManager) =>
         {
             await signInManager.SignOutAsync();
